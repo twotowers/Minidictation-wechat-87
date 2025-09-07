@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Progress, useToast, Badge, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui';
 // @ts-ignore;
 import { Play, Pause, RotateCcw, Volume2, CheckCircle, ArrowRight, ArrowLeft, SkipBack, SkipForward, AlertCircle, Check, X, CheckSquare, XSquare } from 'lucide-react';
+// @ts-ignore;
+import { getQualityColor } from '../utils/getQualityColor';
 
 export default function DictationPage(props) {
   const {
@@ -254,18 +256,7 @@ export default function DictationPage(props) {
   };
 
   // 获取播放质量颜色
-  const getQualityColorClass = () => {
-    switch (playbackQuality) {
-      case 'good':
-        return 'text-green-600 bg-green-100';
-      case 'fair':
-        return 'text-yellow-600 bg-yellow-100';
-      case 'poor':
-        return 'text-red-600 bg-red-100';
-      default:
-        return 'text-gray-600 bg-gray-100';
-    }
-  };
+  const getQualityColorClass = () => getQualityColor(playbackQuality);
 
   // 获取当前单词的拼写状态
   const getCurrentSpellingStatus = () => {
@@ -289,22 +280,24 @@ export default function DictationPage(props) {
     };
   };
 
-  // 添加缺失的JSX返回部分
   if (isLoading) {
-    return <div style={style} className="min-h-screen bg-gray-50 flex items-center justify-center">
+    return (
+      <div style={style} className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">正在加载听写内容...</p>
         </div>
-      </div>;
+      </div>
+    );
   }
 
   const currentWord = mockWords[currentWordIndex];
-  const progress = (currentWordIndex + 1) / mockWords.length * 100;
+  const progress = ((currentWordIndex + 1) / mockWords.length) * 100;
   const currentSpellingStatus = getCurrentSpellingStatus();
-  const spellingStats = calculateSpellingStats();
+  const stats = calculateSpellingStats();
 
-  return <div style={style} className="min-h-screen bg-gray-50">
+  return (
+    <div style={style} className="min-h-screen bg-gray-50">
       {/* 顶部导航 */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -321,13 +314,129 @@ export default function DictationPage(props) {
             <Button variant="outline" size="sm" onClick={() => setShowWordNavigator(!showWordNavigator)}>
               {showWordNavigator ? '隐藏导航' : '单词导航'}
             </Button>
-          </极狐div>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-4xl极狐 mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 作业信息 */}
         <Card className="mb-6">
           <CardContent className="p-4">
             <div className="flex justify-between items-center">
-              <div
+              <div>
+                <h2 className="text-lg font-medium">{assignment.title}</h2>
+                <p className="text-sm text-gray-500">{assignment.textbook} • {assignment.unit}</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={handleBack}>
+                返回作业
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 进度和音质 */}
+        <Card className="mb-6">
+          <CardContent>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-600">进度 {currentWordIndex + 1}/{mockWords.length}</span>
+              <Badge variant="secondary" className={getQualityColorClass()}>
+                {getQualityIcon()}
+                <span className="ml-1">{getQualityText()}</span>
+              </Badge>
+            </div>
+            <Progress value={progress} className="h-2" />
+          </CardContent>
+        </Card>
+
+        {/* 当前单词 */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">{currentWord.word}</CardTitle>
+            <CardDescription className="text-center">{currentWord.pronunciation}</CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-gray-700 mb-4">{currentWord.meaning}</p>
+            <div className="flex justify-center space-x-4 mb-4">
+              {isPlaying ? (
+                <Button onClick={pausePlayback}>
+                  <Pause className="w-6 h-6" />
+                </Button>
+              ) : (
+                <Button onClick={playWord}>
+                  <Play className="w-6 h-6" />
+                </Button>
+              )}
+              <Button variant="outline" onClick={replayWord}>
+                <RotateCcw className="w-6 h-6" />
+              </Button>
+            </div>
+            <div className="space-x-2">
+              <Button onClick={() => recordSpellingResult(currentWord.id, true)} variant="outline">
+                <Check className="w-4 h-4 mr-1" />
+                拼写正确
+              </Button>
+              <Button onClick={() => recordSpellingResult(currentWord.id, false)} variant="outline">
+                <X className="w-4 h-4 mr-1" />
+                拼写错误
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 导航按钮 */}
+        <div className="flex justify-between">
+          <Button onClick={prevWord} disabled={currentWordIndex === 0} variant="secondary">
+            <ArrowLeft className="w-4 h-4 mr-1" /> 上一个
+          </Button>
+          {currentWordIndex < mockWords.length - 1 ? (
+            <Button onClick={nextWord}>
+              下一个 <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          ) : (
+            <Button onClick={handleComplete}>完成</Button>
+          )}
+        </div>
+
+        {/* 单词导航 */}
+        {showWordNavigator && (
+          <Card className="mt-6">
+            <CardContent className="p-4">
+              <div className="grid grid-cols-5 gap-2">
+                {mockWords.map((word, index) => (
+                  <Button
+                    key={word.id}
+                    size="sm"
+                    variant={index === currentWordIndex ? 'default' : 'outline'}
+                    onClick={() => jumpToWord(index)}
+                    className={
+                      spellingResults[word.id] === 'correct'
+                        ? 'bg-green-100'
+                        : spellingResults[word.id] === 'incorrect'
+                        ? 'bg-red-100'
+                        : ''
+                    }
+                  >
+                    {index + 1}
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* 统计信息 */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>统计</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>总词数: {stats.total}</p>
+            <p>正确: {stats.correct}</p>
+            <p>错误: {stats.incorrect}</p>
+            <p>准确率: {stats.accuracy}%</p>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  );
+}
