@@ -5,6 +5,9 @@ import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Prog
 // @ts-ignore;
 import { Play, Pause, RotateCcw, Volume2, CheckCircle, ArrowRight, ArrowLeft, SkipBack, SkipForward, AlertCircle, Check, X, CheckSquare, XSquare } from 'lucide-react';
 
+// @ts-ignore;
+import { getQualityColor } from '../utils/getQualityColor';
+
 export default function DictationPage(props) {
   const {
     $w,
@@ -154,11 +157,7 @@ export default function DictationPage(props) {
 
   // 重播当前单词
   const replayWord = () => {
-    setIsPlaying(true);
-    setPlaybackQuality('good'); // 重试时默认设为良好质量
-    setTimeout(() => {
-      setIsPlaying(false);
-    }, 2000);
+    playWord();
   };
 
   // 记录拼写结果
@@ -258,24 +257,24 @@ export default function DictationPage(props) {
   };
 
   // 获取播放质量颜色
-  const getQualityColor = () => {
-    switch (playbackQuality) {
-      case 'good':
-        return 'text-green-600 bg-green-100';
-      case 'fair':
-        return 'text-yellow-600 bg-yellow-100';
-      case 'poor':
-        return 'text-red-600 bg-red-100';
-      default:
-        return 'text-gray-600 bg-gray-100';
-    }
-  };
+  const getQualityColorClass = () => getQualityColor(playbackQuality);
 
   // 获取当前单词的拼写状态
-  const getCurrentSpellingStatus极狐 = () => {
+  const getCurrentSpellingStatus = () => {
     const currentWordId = mockWords[currentWordIndex].id;
     return spellingResults[currentWordId];
   };
 
   // 计算拼写统计
-  const calculateSpellingStats = () =>
+  const calculateSpellingStats = () => {
+    const total = mockWords.length;
+    const correct = Object.values(spellingResults).filter(result => result === 'correct').length;
+    const incorrect = Object.values(spellingResults).filter(result => result === 'incorrect').length;
+    const accuracy = total ? (correct / total * 100).toFixed(1) : '0';
+    return {
+      total,
+      correct,
+      incorrect,
+      accuracy
+    };
+  };
