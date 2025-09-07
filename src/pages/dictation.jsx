@@ -5,9 +5,6 @@ import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Prog
 // @ts-ignore;
 import { Play, Pause, RotateCcw, Volume2, CheckCircle, ArrowRight, ArrowLeft, SkipBack, SkipForward, AlertCircle, Check, X, CheckSquare, XSquare } from 'lucide-react';
 
-// @ts-ignore;
-import { getQualityColor } from '../utils/getQualityColor';
-
 export default function DictationPage(props) {
   const {
     $w,
@@ -257,7 +254,18 @@ export default function DictationPage(props) {
   };
 
   // 获取播放质量颜色
-  const getQualityColorClass = () => getQualityColor(playbackQuality);
+  const getQualityColorClass = () => {
+    switch (playbackQuality) {
+      case 'good':
+        return 'text-green-600 bg-green-100';
+      case 'fair':
+        return 'text-yellow-600 bg-yellow-100';
+      case 'poor':
+        return 'text-red-600 bg-red-100';
+      default:
+        return 'text-gray-600 bg-gray-100';
+    }
+  };
 
   // 获取当前单词的拼写状态
   const getCurrentSpellingStatus = () => {
@@ -275,6 +283,51 @@ export default function DictationPage(props) {
       total,
       correct,
       incorrect,
-      accuracy
+      accuracy,
+      correctCount: correct,
+      incorrectCount: incorrect
     };
   };
+
+  // 添加缺失的JSX返回部分
+  if (isLoading) {
+    return <div style={style} className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">正在加载听写内容...</p>
+        </div>
+      </div>;
+  }
+
+  const currentWord = mockWords[currentWordIndex];
+  const progress = (currentWordIndex + 1) / mockWords.length * 100;
+  const currentSpellingStatus = getCurrentSpellingStatus();
+  const spellingStats = calculateSpellingStats();
+
+  return <div style={style} className="min-h-screen bg-gray-50">
+      {/* 顶部导航 */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <Button variant="ghost" onClick={handleBack} className="mr-4">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </Button>
+              <Volume2 className="h-8 w-8 text-blue-600 mr-3" />
+              <h1 className="text-2xl font-bold text-gray-900">单词听写</h1>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => setShowWordNavigator(!showWordNavigator)}>
+              {showWordNavigator ? '隐藏导航' : '单词导航'}
+            </Button>
+          </极狐div>
+        </div>
+      </header>
+
+      <main className="max-w-4xl极狐 mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 作业信息 */}
+        <Card className="mb-6">
+          <CardContent className="p-4">
+            <div className="flex justify-between items-center">
+              <div
