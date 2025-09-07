@@ -278,3 +278,86 @@ export default function DictationPage(props) {
       accuracy
     };
   };
+
+  const stats = calculateSpellingStats();
+
+  return (
+    <div style={style} className="p-4 space-y-4">
+      {assignment && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{assignment.title}</CardTitle>
+            <CardDescription>
+              {assignment.textbook} · {assignment.unit}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Button onClick={handleBack} variant="ghost" size="sm">
+                <ArrowLeft className="w-4 h-4 mr-1" />返回
+              </Button>
+              <Badge>
+                {currentWordIndex + 1}/{mockWords.length}
+              </Badge>
+            </div>
+            <div className="text-center text-2xl font-bold">
+              {mockWords[currentWordIndex].word}
+            </div>
+            <div className="text-center text-gray-600">
+              {mockWords[currentWordIndex].meaning}
+            </div>
+            <div className="flex justify-center space-x-4">
+              {isPlaying ? (
+                <Button onClick={pausePlayback} size="icon">
+                  <Pause className="w-5 h-5" />
+                </Button>
+              ) : (
+                <Button onClick={playWord} size="icon">
+                  <Volume2 className="w-5 h-5" />
+                </Button>
+              )}
+              <Button onClick={replayWord} size="icon">
+                <RotateCcw className="w-5 h-5" />
+              </Button>
+              <Badge className={getQualityColorClass()}>
+                {getQualityIcon()} {getQualityText()}
+              </Badge>
+            </div>
+            <div className="flex justify-center space-x-4">
+              <Button
+                onClick={() => {
+                  recordSpellingResult(mockWords[currentWordIndex].id, true);
+                  nextWord();
+                }}
+                variant="outline"
+              >
+                <CheckSquare className="w-4 h-4 mr-1" />正确
+              </Button>
+              <Button
+                onClick={() => {
+                  recordSpellingResult(mockWords[currentWordIndex].id, false);
+                  nextWord();
+                }}
+                variant="outline"
+              >
+                <XSquare className="w-4 h-4 mr-1" />错误
+              </Button>
+            </div>
+            <Progress value={(currentWordIndex / mockWords.length) * 100} />
+            <div className="text-sm text-gray-500 text-center">
+              已完成 {stats.correct + stats.incorrect}/{stats.total}，正确率 {stats.accuracy}%
+            </div>
+            <div className="text-center">
+              <Button
+                onClick={handleComplete}
+                disabled={Object.keys(spellingResults).length < mockWords.length}
+              >
+                完成听写
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
