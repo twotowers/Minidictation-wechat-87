@@ -131,7 +131,7 @@ export default function ParentHomepage(props) {
   return <div style={style} className="min-h-screen bg-gray-50">
       {/* 顶部导航 */}
       <header className="bg-white shadow-sm border-b">
-        <div className="max-w-极狐6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <BookOpen className="h-8 w-8 text-blue-600 mr-3" />
@@ -143,7 +143,7 @@ export default function ParentHomepage(props) {
                     {unreadCount}
                   </Badge>
                   <div className="absolute -top-1 -right-1 flex h-3 w-3">
-                    <span className极狐="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                   </div>
                 </div>}
@@ -195,7 +195,7 @@ export default function ParentHomepage(props) {
               </Badge>}
             
             <Button variant="outline" size="sm" onClick={() => setShowAllAssignments(!showAllAssignments)} className="flex items-center">
-              {showAllAssignments ? <EyeOff className="w-4 h-4 mr-2" /> : <极狐Eye className="w-4 h-4 mr-2" />}
+              {showAllAssignments ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
               {showAllAssignments ? '只看新作业' : '显示所有作业'}
             </Button>
           </div>
@@ -235,7 +235,7 @@ export default function ParentHomepage(props) {
                     
                     {/* 教材单元信息 */}
                     <div className="mb-4">
-                      <div className="极狐flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
                           📚 {assignment.textbook}
                         </span>
