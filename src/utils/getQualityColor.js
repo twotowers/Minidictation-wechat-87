@@ -1,5 +1,5 @@
 export function getQualityColor(quality) {
-  switch (quality) {
+  switch (quality?.toLowerCase()) {
     case 'good':
       return 'text-green-600 bg-green-100';
     case 'fair':

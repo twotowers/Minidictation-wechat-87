@@ -17,3 +17,11 @@ test('returns red for poor quality', () => {
 test('returns gray for unknown quality', () => {
   assert.equal(getQualityColor('unknown'), 'text-gray-600 bg-gray-100');
 });
+
+test('handles mixed case input', () => {
+  assert.equal(getQualityColor('Good'), 'text-green-600 bg-green-100');
+});
+
+test('returns gray when quality is undefined', () => {
+  assert.equal(getQualityColor(undefined), 'text-gray-600 bg-gray-100');
+});
